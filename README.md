@@ -1,5 +1,11 @@
 HandyCapper
 ===========
+This is alpha software. Currently only supports PHRF Time on Distance scoring.
+
+Requirements
+------------
+- Ruby 1.9.2 or greater
+- minitest gem (if you want to run the test suite)
 
 Usage
 -----
@@ -40,3 +46,4 @@ Launch an irb session with HandyCapper loaded
 ```bash
 rake console
 ```
+
