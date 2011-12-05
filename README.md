@@ -43,7 +43,14 @@ rake test
 Utilities
 ---------
 Launch an irb session with HandyCapper loaded
+
 ```bash
 rake console
 ```
+
+Copyright
+---------
+Copyright (c) 2011 Claude Nix See [LICENSE][] for details.
+
+[license]: https://github.com/cnix/handy_capper/blob/master/LICENSE.md
 
