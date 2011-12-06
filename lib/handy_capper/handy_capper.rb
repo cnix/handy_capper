@@ -23,24 +23,64 @@ module HandyCapper
   #
   # Returns receiver with elapsed_time and corrected_time set
   def phrf(options={})
-    cf  = self.rating
-    st  = self.start_time
-    ft  = self.finish_time
-    d   = self.distance
 
-    unless cf && st && ft && d
+    unless rating && start_time && finish_time
       raise AttributeError, "You're missing a required attribute to process this result"
     end
 
-    et = calculate_elapsed_time(self)
-    ct_in_seconds = (et - (d * cf))
+    self.elapsed_time = calculate_elapsed_time(self)
+
+    if options[:formula] == :tot
+      a = options[:a] || 650 # generic numerator
+      b = options[:b] || 550 # average conditions
+      ct_in_seconds = score_with_phrf_time_on_time(a,b)
+    else
+      ct_in_seconds = score_with_phrf_time_on_distance
+    end
+
     self.corrected_time = convert_seconds_to_time(ct_in_seconds)
-    self.elapsed_time = convert_seconds_to_time(et)
+    self.elapsed_time = convert_seconds_to_time(self.elapsed_time)
 
     self
   end
 
   private
+
+  # Internal: Calculate corrected time with PHRF Time on Distance
+  #
+  # result - corrected time in seconds
+  #
+  # Examples
+  #
+  #   Result = Struct.new(:elapsed_time, :rating, :distance)
+  #   result = Result.new(5400, 222, 10.5)
+  #   result.score_with_phrf_time_on_distance
+  #   # => 3069
+  #
+  # Returns a Fixnum
+  def score_with_phrf_time_on_distance
+    cf  = self.rating
+    et  = self.elapsed_time
+    d   = self.distance
+
+    (et - (d * cf)).round
+  end
+
+  # Internal: Calculate corrected time with PHRF Time on Time
+  #
+  # result - corrected time in seconds
+  #
+  # Examples
+  #
+  #   Result = Struct.new(:elapsed_time, :rating, :tot_base)
+  #   result = Result.new(5400, 222, 450)
+  #   # => something
+  #
+  # Returns a fixnum
+  def score_with_phrf_time_on_time(a, b)
+    tcf = a.to_f / ( b.to_f + self.rating.to_f )
+    (self.elapsed_time * tcf).round
+  end
 
   # Internal: Calculate delta in seconds between two time objects
   #

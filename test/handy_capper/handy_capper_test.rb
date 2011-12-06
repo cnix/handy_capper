@@ -44,9 +44,43 @@ describe HandyCapper do
       -> { @result.phrf }.must_raise AttributeError
     end
 
-    it "should require a distance" do
-      @result.distance = nil
-      -> { @result.phrf }.must_raise AttributeError
+    it "should default to PHRF Time On Distance" do
+      @result.phrf.corrected_time.must_equal '00:51:17'
+    end
+  end
+
+  describe "#score_with_phrf_time_on_distance" do
+    before do
+      # set elapsed time to seconds so we don't need to convert to test this
+      @result = Result.new(222, '10:00:00', '11:30:30', 10.6, 5430)
+    end
+
+    it "should calculate corrected time with Time on Distance formula" do
+      corrected_time_in_seconds = @result.send(:score_with_phrf_time_on_distance)
+      corrected_time_in_seconds.must_be_instance_of Fixnum
+      corrected_time_in_seconds.must_equal 3077
+    end
+  end
+
+  describe "#score_with_phrf_time_on_time" do
+    before do
+      @result = Result.new(222, '10:00:00', '11:30:30', nil, 5430)
+    end
+
+    it "should calculate corrected time with Time on Time formula" do
+      corrected_time_in_seconds = @result.send(:score_with_phrf_time_on_time, 650,550)
+      corrected_time_in_seconds.must_be_instance_of Fixnum
+      corrected_time_in_seconds.must_equal 4572
+    end
+
+    it "should allow configuration of time on time numerator" do
+      corrected_time_in_seconds = @result.send(:score_with_phrf_time_on_time, 550,550)
+      corrected_time_in_seconds.must_equal 3869
+    end
+
+    it "should allow configuration of time on time denominator" do
+      corrected_time_in_seconds = @result.send(:score_with_phrf_time_on_time, 650,480)
+      corrected_time_in_seconds.must_equal 5028
     end
   end
 
