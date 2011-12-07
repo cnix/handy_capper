@@ -24,29 +24,53 @@ describe HandyCapper do
 
   describe "#score" do
     before do
-      @results = []
+      @corrected_results = []
       10.times do
         result = Result.new
         # TODO: Address potential race condition
         time = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
         result.corrected_time = time
-        @results << result
+        @corrected_results << result
+      end
+
+      @one_design_results = []
+      10.times do
+        result = Result.new
+        # TODO: Address potential race condition
+        time = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.elapsed_time = time
+        @one_design_results << result
       end
     end
 
-    it "should sort the results by time" do
-      scored_results = @results.score
+    describe "one design" do
+      it "should sort results by elapsed_time" do
+        scored_results = @one_design_results.score(:one_design)
 
-      previous = '0'
-      scored_results.each do |r|
-        this = r.corrected_time
-        (this > previous).must_equal true
-        previous = this
+        previous = '0'
+        scored_results.each do |r|
+          this = r.elapsed_time
+          (this > previous).must_equal true
+          previous = this
+        end
+      end
+    end
+
+    describe "corrected time" do
+      it "should sort the results by corrected_time" do
+        scored_results = @corrected_results.score
+
+        previous = '0'
+        scored_results.each do |r|
+          this = r.corrected_time
+          (this > previous).must_equal true
+          previous = this
+        end
       end
     end
 
     it "should add position to the result" do
-      scored_results = @results.score
+      scored_results = @corrected_results.score
 
       scored_results.each do |r|
         r.position.wont_be_nil

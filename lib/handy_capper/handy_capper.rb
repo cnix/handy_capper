@@ -2,12 +2,16 @@ module HandyCapper
 
   # Public: Applies position and points to a group of results
   #
+  # sort -  Result attribute to sort by. (default: :corrected_time)
+  #         :one_design     - sort by elapsed_time
+  #         :corrected_time - sort by corrected_time
+  #
   # Examples
   #
   #   # get some result objects from a database or something
   #   results = Result.where('race_id = ?', 1)
   #   # => [ #<Result ...>, #<Result ...>]
-  #   results.score
+  #   results.score(:corrected_time)
   #   # returns results with position and points set
   #   # => [ #<Result ...>, #<Result ...>]
   #   results.first.position
@@ -16,20 +20,28 @@ module HandyCapper
   #   # => 1
   #
   # Returns receiver(Array) with position and points set for each item in the array
-  def score(options={})
-    sort = options[:one_design] ? :elapsed_time : :corrected_time
+  def score(sort = :corrected_time)
+    sort = (sort == :one_design) ? :elapsed_time : :corrected_time
     sorted_results = self.sort_by { |h| h[sort] }
 
     sorted_results.each_with_index do |result, index|
       result.position = index + 1
       calculate_points(result, sorted_results.length)
     end
+
+    sorted_results
   end
 
   # Public: Corects a result with the PHRF scoring system.
   # See http://http://offshore.ussailing.org/PHRF.htm
   #
   # options - Hash for setting a different PHRF scoring method (default: {})
+  #           :formula -  If you wish to use Time on Time, pass the Symbol :tot
+  #                       Additionally, you can set the numerator and 
+  #                       denominator for the Time on Time formula by setting
+  #                       values for :a & :b
+  #           :a       -  Set :a to a Fixnum to set the numerator of the formula
+  #           :b       -  Set :b to a Fixnum to set the denominator of the formula
   #
   # Examples
   #
@@ -40,6 +52,7 @@ module HandyCapper
   #     finish_time: '11:30:30',
   #     distance: 10.5
   #   })
+  #
   #   result.phrf
   #   # => #<Result ...>
   #   result.elapsed_time
@@ -47,7 +60,20 @@ module HandyCapper
   #   result.corrected_time
   #   # => '00:59:50'
   #
+  #   # Using default settings for Time on Time formula
+  #   result.phrf(formula: :tot)
+  #   # => #<Result ...>
+  #   result.corrected_time
+  #   # => '01:16:12'
+  #
+  #   # Change the denominator to accommodate conditions
+  #   result.phrf(formula: :tot, b: 480) # heavy air
+  #   # => #<Result ...>
+  #   result.corrected_time
+  #   # => '01:23:48'
+  #
   # Returns receiver with elapsed_time and corrected_time set
+  # Raises AttributeError if a required attribute is missing from the receiver
   def phrf(options={})
 
     unless rating && start_time && finish_time
@@ -92,17 +118,21 @@ module HandyCapper
     (et - (d * cf)).round
   end
 
-  # Internal: Calculate corrected time with PHRF Time on Time
+  # Internal: Calculate corrected time in seconds with PHRF Time on Time
   #
-  # result - corrected time in seconds
+  # a - Numerator for TOT formula. Does not affect position.
+  # b - Denominator for TOT formula. This one affects position.
   #
   # Examples
   #
-  #   Result = Struct.new(:elapsed_time, :rating, :tot_base)
-  #   result = Result.new(5400, 222, 450)
-  #   # => something
+  #   Result = Struct.new(:elapsed_time, :rating)
+  #   result = Result.new(5400, 222)
+  #   result.score_with_phrf_time_on_time(b: 480)
+  #   # => 5000
+  #   result.score_with_phrf_time_on_time(b: 600)
+  #   # => 4270
   #
-  # Returns a fixnum
+  # Returns a Fixnum representing corrected time in seconds
   def score_with_phrf_time_on_time(a, b)
     tcf = a.to_f / ( b.to_f + self.rating.to_f )
     (self.elapsed_time * tcf).round
@@ -140,7 +170,7 @@ module HandyCapper
 
   # Internal: Calculate the points for a scored result
   #
-  # result - A Result object
+  # result        - A Result object
   # total_results - A Fixnum representing the number of results in the set
   #
   # Examples
@@ -203,28 +233,6 @@ module HandyCapper
   # Internal: Array of String penalty codes that apply the 20% penalty
   TWENTY_PERCENT_PENALTY_CODES = [ 'ZFP', 'SCP' ]
 
-  class AttributeError < Exception; end
+  class AttributeError < StandardError; end
 
 end
-
-# PreliminaryResult
-# preliminary_result:
-#   :boat_id (to get rating)
-#   :fleet_id (to get scoring type)
-#   :race_id (for edits)
-#   :penalty
-#   :course_length (for PHRF TOD)
-#   :wind_speed (for PHRF TOT, DP-N)
-#   :start_time
-#   :finish_time
-#   :corrected_time
-#
-#
-#
-# corrected = result.phrf(system: :tod)
-#
-# things we want to know:
-#   elapsed_time
-#   corrected_time
-#   avg_speed
-#   time_behind_in_seconds_per_mile => must process entire result set. =\
