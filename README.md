@@ -1,15 +1,15 @@
-HandyCapper
-===========
+# HandyCapper
 This is alpha software. It currently only supports PHRF Time on Distance and
 PHRF Time on Time scoring.
 
-Requirements
-------------
+## Requirements
 - Ruby 1.9.2 or greater
 - minitest gem (if you want to run the test suite)
 
-Usage
------
+## Usage
+
+### Calculating corrected time
+
 ```ruby
 class YourApp
   include HandyCapper
@@ -36,7 +36,7 @@ result.corrected_time
 # => '00:51:39'
 ```
 
-### PHRF Time on Time Scoring
+#### PHRF Time on Time Scoring
 The PHRF Time on Time scoring method calculates a Time Correction Factor (TCF)
 which is multiplied by the elapsed time to get 'corrected time'. The TCF is
 calculated thusly:
@@ -61,7 +61,8 @@ Corrected time is then calculated as:
 corrected = TCF * elapsed time
 ```
 
-For more information on PHRF Time on Time scoring, see [http://offshore.ussailing.org/PHRF/Time-On-Time_Scoring.htm][]
+For more information on PHRF Time on Time scoring, see 
+[http://offshore.ussailing.org/PHRF/Time-On-Time_Scoring.htm][]
 
 ```ruby
 result.phrf(formula: :tot, a: 650, b: 550)
@@ -71,6 +72,26 @@ result.elapsed_time
 result.corrected_time
 # => '01:16:12'
 ```
+
+### Scoring a race
+Now that we can correct times, we need to be able to sort a group of corrected
+results and apply points. Currently, HandyCapper only supports scoring a
+single event. Scoring a series, including applying throwouts will be supported
+in a future release.
+
+```ruby
+# get some result objects from a database or something
+results = Result.where('race_id = ?', 1)
+# => [ #<Result ...>, #<Result ...>]
+results.score
+# returns results with position and points set
+# => [ #<Result ...>, #<Result ...>]
+results.first.position
+# => 1
+results.first.points
+# => 1
+```
+
 
 Run the Tests
 -------------
@@ -88,7 +109,7 @@ rake console
 
 Copyright
 ---------
-Copyright (c) 2011 Claude Nix See [LICENSE][] for details.
+Copyright (c) 2011 Claude Nix. See [LICENSE][] for details.
 
 [license]: https://github.com/cnix/handy_capper/blob/master/LICENSE.md
 [http://offshore.ussailing.org/PHRF/Time-On-Time_Scoring.htm]: http://offshore.ussailing.org/PHRF/Time-On-Time_Scoring.htm

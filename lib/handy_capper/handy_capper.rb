@@ -1,6 +1,32 @@
 module HandyCapper
 
-  # Public: Scores a result with the PHRF scoring system.
+  # Public: Applies position and points to a group of results
+  #
+  # Examples
+  #
+  #   # get some result objects from a database or something
+  #   results = Result.where('race_id = ?', 1)
+  #   # => [ #<Result ...>, #<Result ...>]
+  #   results.score
+  #   # returns results with position and points set
+  #   # => [ #<Result ...>, #<Result ...>]
+  #   results.first.position
+  #   # => 1
+  #   results.first.points
+  #   # => 1
+  #
+  # Returns receiver(Array) with position and points set for each item in the array
+  def score(options={})
+    sort = options[:one_design] ? :elapsed_time : :corrected_time
+    sorted_results = self.sort_by { |h| h[sort] }
+
+    sorted_results.each_with_index do |result, index|
+      result.position = index + 1
+      calculate_points(result, sorted_results.length)
+    end
+  end
+
+  # Public: Corects a result with the PHRF scoring system.
   # See http://http://offshore.ussailing.org/PHRF.htm
   #
   # options - Hash for setting a different PHRF scoring method (default: {})
@@ -111,6 +137,71 @@ module HandyCapper
   def convert_seconds_to_time(seconds)
     Time.at(seconds).gmtime.strftime('%R:%S')
   end
+
+  # Internal: Calculate the points for a scored result
+  #
+  # result - A Result object
+  # total_results - A Fixnum representing the number of results in the set
+  #
+  # Examples
+  #
+  #   first_place_boat = Result.new({
+  #     corrected_time: '01:30:41',
+  #     position:       1,
+  #     code:           nil
+  #   })
+  #   calculate_points(first_place_boat, 10)
+  #   # => #<Result ...>
+  #   first_place_boat.points
+  #   # => 1
+  #   
+  #   dnf_boat = Result.new({
+  #     corrected_time: nil,
+  #     position:       10,
+  #     code:           'DNF'
+  #   })
+  #   calculate_points(dnf_boat, 10)
+  #   # => #<Result ...>
+  #   dnf_boat.points
+  #   # => 11
+  #
+  # Returns the receiver with the points attribute set to a Fixnum
+  def calculate_points(result, total_results)
+    if result.code
+      calculate_points_with_penalty(result, total_results)
+    else
+      result.points = result.position
+    end
+    result
+  end
+
+  # Internal: Calculate points based on a penalty code
+  def calculate_points_with_penalty(result, total_results)
+    if ONE_POINT_PENALTY_CODES.include?(result.code)
+      result.points = total_results + 1
+    elsif TWENTY_PERCENT_PENALTY_CODES.include?(result.code)
+      penalty_points = (total_results * 0.20).round
+      if (penalty_points + result.position) > (total_results + 1)
+        result.points = total_results + 1
+      else
+        result.points = result.position + penalty_points
+      end
+    else
+      result.points = result.position
+    end
+    result
+  end
+
+  # Internal: Array of String penalty codes that apply the n + 1 penalty where
+  # n = the total number of entries for a fleet
+  ONE_POINT_PENALTY_CODES = [
+    'DSQ', 'DNS', 'DNC', 'DNF',
+    'OCS', 'BFD', 'DGM', 'DNE',
+    'RAF'
+  ]
+
+  # Internal: Array of String penalty codes that apply the 20% penalty
+  TWENTY_PERCENT_PENALTY_CODES = [ 'ZFP', 'SCP' ]
 
   class AttributeError < Exception; end
 

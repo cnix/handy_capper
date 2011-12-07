@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'ruby-debug'
 
 describe HandyCapper do
   before do
@@ -8,10 +9,11 @@ describe HandyCapper do
       :finish_time,
       :distance,
       :elapsed_time,
-      :corrected_time
+      :corrected_time,
+      :position,
+      :points,
+      :code
     )
-
-    @result = Result.new( 222, '10:00:00', '11:30:30', 10.6)
   end
 
   after do
@@ -20,7 +22,43 @@ describe HandyCapper do
     Object.send(:remove_const, :Result)
   end
 
+  describe "#score" do
+    before do
+      @results = []
+      10.times do
+        result = Result.new
+        # TODO: Address potential race condition
+        time = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.corrected_time = time
+        @results << result
+      end
+    end
+
+    it "should sort the results by time" do
+      scored_results = @results.score
+
+      previous = '0'
+      scored_results.each do |r|
+        this = r.corrected_time
+        (this > previous).must_equal true
+        previous = this
+      end
+    end
+
+    it "should add position to the result" do
+      scored_results = @results.score
+
+      scored_results.each do |r|
+        r.position.wont_be_nil
+      end
+    end
+  end
+
   describe "#phrf" do
+    before do
+      @result = Result.new( 222, '10:00:00', '11:30:30', 10.6)
+    end
+
     it "should set the elapsed time" do
       @result.phrf.elapsed_time.wont_be_nil
     end
@@ -85,6 +123,10 @@ describe HandyCapper do
   end
 
   describe "#calculate_elapsed_time" do
+    before do
+      @result = Result.new( 222, '10:00:00', '11:30:30', 10.6)
+    end
+
     it "should return a Fixnum representing time in seconds" do
       seconds = calculate_elapsed_time(@result)
       seconds.must_be_instance_of Fixnum
@@ -93,6 +135,10 @@ describe HandyCapper do
   end
 
   describe "#convert_seconds_to_time" do
+    before do
+      @result = Result.new( 222, '10:00:00', '11:30:30', 10.6)
+    end
+
     it "should accept a Fixnum" do
       -> { convert_seconds_to_time("90") }.
         must_raise TypeError
@@ -102,6 +148,54 @@ describe HandyCapper do
       time = convert_seconds_to_time(90)
       time.must_be_instance_of String
       time.must_equal "00:01:30"
+    end
+  end
+
+  describe "#calculate_points" do
+    before do
+      @result = Result.new
+      @result.position = 2
+    end
+
+    it "should set the points for a result" do
+      calculate_points(@result, 10)
+      @result.points.must_equal 2
+    end
+
+    describe "penalty scoring" do
+
+      describe "when the penalty code is a n + 1 code" do
+
+        it "should set points based on ISAF penalty code" do
+          ['DSQ', 'DNS', 'DNF', 'DNC', 'OCS', 'BFD', 'DGM', 'DNE', 'RAF'].each do |c|
+            @result.code = c
+            calculate_points(@result, 10)
+            @result.points.must_equal 11
+          end
+
+        end
+      end
+
+      describe "when the penalty code is a 20% penalty" do
+
+        it "should apply the 20% penalty" do
+          [ 'ZFP', 'SCP' ].each do |c|
+            @result.code = c
+            calculate_points(@result, 10)
+            @result.points.must_equal 4
+          end
+        end
+
+        it "should not apply a penalty greater than n + 1" do
+          [ 'ZFP', 'SCP' ].each do |c|
+            @result.code = c
+            @result.position = 10
+            calculate_points(@result, 10)
+            @result.points.must_equal 11
+          end
+        end
+
+      end
     end
   end
 end
