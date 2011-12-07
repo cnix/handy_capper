@@ -1,5 +1,9 @@
 module HandyCapper
+  # Public: Namespace for model-like modules
   module Models
+    # Public: Include this module in your result class to get required attributes
+    # for scoring the results. Alternatively, you can alias these to whatever
+    # you have called them in your application
     module PreliminaryResult
 
       # Public: Array of Symbols passed attr_accessor on base class

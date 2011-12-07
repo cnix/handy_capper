@@ -1,3 +1,6 @@
+# Public: Various methods for scoring sailing regattas.
+# All methods are instance methods.
+# Currently only PHRF Time on Time and PHRF Time on Distance are supported.
 module HandyCapper
 
   # Public: Applies position and points to a group of results
@@ -233,6 +236,8 @@ module HandyCapper
   # Internal: Array of String penalty codes that apply the 20% penalty
   TWENTY_PERCENT_PENALTY_CODES = [ 'ZFP', 'SCP' ]
 
+  # Internal: Error that is raised when required attributes are missing from a
+  # receiver for PHRF scoring
   class AttributeError < StandardError; end
 
 end
