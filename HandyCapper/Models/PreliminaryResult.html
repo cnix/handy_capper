@@ -122,7 +122,12 @@
 		<h1 class="module">HandyCapper::Models::PreliminaryResult</h1>
 
 		<div id="description">
-			
+			<p>
+Public: Include this module in your result class to get required attributes
+for scoring the results. Alternatively, you can alias these to whatever you
+have called them in your application
+</p>
+
 		</div>
 
 		<!-- Constants -->
@@ -173,12 +178,12 @@ Public: Installs attributes on a class where this module is included
 					<div class="method-source-code"
 						id="included-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/models/preliminary_result.rb, line 19</span>
-19:       <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">included</span>(<span class="ruby-identifier">base</span>)
-20:         <span class="ruby-constant">DEFAULT_PROPERTIES</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span>
-21:           <span class="ruby-identifier">base</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:attr_accessor</span>, <span class="ruby-identifier">p</span>)
-22:         <span class="ruby-keyword kw">end</span>
-23:       <span class="ruby-keyword kw">end</span></pre>
+    <span class="ruby-comment cmt"># File lib/models/preliminary_result.rb, line 23</span>
+23:       <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">included</span>(<span class="ruby-identifier">base</span>)
+24:         <span class="ruby-constant">DEFAULT_PROPERTIES</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span>
+25:           <span class="ruby-identifier">base</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:attr_accessor</span>, <span class="ruby-identifier">p</span>)
+26:         <span class="ruby-keyword kw">end</span>
+27:       <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>

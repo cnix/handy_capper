@@ -153,7 +153,12 @@
 		<h1 class="module">HandyCapper</h1>
 
 		<div id="description">
-			
+			<p>
+Public: Various methods for scoring sailing regattas. All methods are
+instance methods. Currently only PHRF Time on Time and PHRF Time on
+Distance are supported.
+</p>
+
 		</div>
 
 		<!-- Constants -->
@@ -179,7 +184,9 @@ Internal: Array of String penalty codes that apply the 20% penalty
 			
 				<dt><a name="VERSION">VERSION</a></dt>
 				
-				<dd class="description"></dd>
+				<dd class="description"><p>
+Public: Version number for this release
+</p></dd>
 				
 			
 			</dl>
@@ -265,28 +272,28 @@ attribute is missing from the receiver
 					<div class="method-source-code"
 						id="phrf-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 77</span>
-77:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">phrf</span>(<span class="ruby-identifier">options</span>={})
-78: 
-79:     <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">rating</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">start_time</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">finish_time</span>
-80:       <span class="ruby-identifier">raise</span> <span class="ruby-constant">AttributeError</span>, <span class="ruby-value str">&quot;You're missing a required attribute to process this result&quot;</span>
-81:     <span class="ruby-keyword kw">end</span>
-82: 
-83:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> = <span class="ruby-identifier">calculate_elapsed_time</span>(<span class="ruby-keyword kw">self</span>)
-84: 
-85:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:formula</span>] <span class="ruby-operator">==</span> <span class="ruby-value">:tot</span>
-86:       <span class="ruby-identifier">a</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:a</span>] <span class="ruby-operator">||</span> <span class="ruby-value">650</span> <span class="ruby-comment cmt"># generic numerator</span>
-87:       <span class="ruby-identifier">b</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:b</span>] <span class="ruby-operator">||</span> <span class="ruby-value">550</span> <span class="ruby-comment cmt"># average conditions</span>
-88:       <span class="ruby-identifier">ct_in_seconds</span> = <span class="ruby-identifier">score_with_phrf_time_on_time</span>(<span class="ruby-identifier">a</span>,<span class="ruby-identifier">b</span>)
-89:     <span class="ruby-keyword kw">else</span>
-90:       <span class="ruby-identifier">ct_in_seconds</span> = <span class="ruby-identifier">score_with_phrf_time_on_distance</span>
-91:     <span class="ruby-keyword kw">end</span>
-92: 
-93:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">corrected_time</span> = <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-identifier">ct_in_seconds</span>)
-94:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> = <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span>)
-95: 
-96:     <span class="ruby-keyword kw">self</span>
-97:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 80</span>
+ 80:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">phrf</span>(<span class="ruby-identifier">options</span>={})
+ 81: 
+ 82:     <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">rating</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">start_time</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">finish_time</span>
+ 83:       <span class="ruby-identifier">raise</span> <span class="ruby-constant">AttributeError</span>, <span class="ruby-value str">&quot;You're missing a required attribute to process this result&quot;</span>
+ 84:     <span class="ruby-keyword kw">end</span>
+ 85: 
+ 86:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> = <span class="ruby-identifier">calculate_elapsed_time</span>(<span class="ruby-keyword kw">self</span>)
+ 87: 
+ 88:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:formula</span>] <span class="ruby-operator">==</span> <span class="ruby-value">:tot</span>
+ 89:       <span class="ruby-identifier">a</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:a</span>] <span class="ruby-operator">||</span> <span class="ruby-value">650</span> <span class="ruby-comment cmt"># generic numerator</span>
+ 90:       <span class="ruby-identifier">b</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:b</span>] <span class="ruby-operator">||</span> <span class="ruby-value">550</span> <span class="ruby-comment cmt"># average conditions</span>
+ 91:       <span class="ruby-identifier">ct_in_seconds</span> = <span class="ruby-identifier">score_with_phrf_time_on_time</span>(<span class="ruby-identifier">a</span>,<span class="ruby-identifier">b</span>)
+ 92:     <span class="ruby-keyword kw">else</span>
+ 93:       <span class="ruby-identifier">ct_in_seconds</span> = <span class="ruby-identifier">score_with_phrf_time_on_distance</span>
+ 94:     <span class="ruby-keyword kw">end</span>
+ 95: 
+ 96:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">corrected_time</span> = <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-identifier">ct_in_seconds</span>)
+ 97:     <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> = <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span>)
+ 98: 
+ 99:     <span class="ruby-keyword kw">self</span>
+100:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -345,18 +352,18 @@ array
 					<div class="method-source-code"
 						id="score-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 23</span>
-23:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score</span>(<span class="ruby-identifier">sort</span> = <span class="ruby-value">:corrected_time</span>)
-24:     <span class="ruby-identifier">sort</span> = (<span class="ruby-identifier">sort</span> <span class="ruby-operator">==</span> <span class="ruby-value">:one_design</span>) <span class="ruby-operator">?</span> <span class="ruby-value">:elapsed_time</span> <span class="ruby-operator">:</span> <span class="ruby-value">:corrected_time</span>
-25:     <span class="ruby-identifier">sorted_results</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">sort_by</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">h</span><span class="ruby-operator">|</span> <span class="ruby-identifier">h</span>[<span class="ruby-identifier">sort</span>] }
-26: 
-27:     <span class="ruby-identifier">sorted_results</span>.<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">result</span>, <span class="ruby-identifier">index</span><span class="ruby-operator">|</span>
-28:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span> = <span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
-29:       <span class="ruby-identifier">calculate_points</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">sorted_results</span>.<span class="ruby-identifier">length</span>)
-30:     <span class="ruby-keyword kw">end</span>
-31: 
-32:     <span class="ruby-identifier">sorted_results</span>
-33:   <span class="ruby-keyword kw">end</span></pre>
+    <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 26</span>
+26:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score</span>(<span class="ruby-identifier">sort</span> = <span class="ruby-value">:corrected_time</span>)
+27:     <span class="ruby-identifier">sort</span> = (<span class="ruby-identifier">sort</span> <span class="ruby-operator">==</span> <span class="ruby-value">:one_design</span>) <span class="ruby-operator">?</span> <span class="ruby-value">:elapsed_time</span> <span class="ruby-operator">:</span> <span class="ruby-value">:corrected_time</span>
+28:     <span class="ruby-identifier">sorted_results</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">sort_by</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">h</span><span class="ruby-operator">|</span> <span class="ruby-identifier">h</span>[<span class="ruby-identifier">sort</span>] }
+29: 
+30:     <span class="ruby-identifier">sorted_results</span>.<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">result</span>, <span class="ruby-identifier">index</span><span class="ruby-operator">|</span>
+31:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span> = <span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+32:       <span class="ruby-identifier">calculate_points</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">sorted_results</span>.<span class="ruby-identifier">length</span>)
+33:     <span class="ruby-keyword kw">end</span>
+34: 
+35:     <span class="ruby-identifier">sorted_results</span>
+36:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -410,10 +417,10 @@ Returns a Fixnum
 					<div class="method-source-code"
 						id="calculate-elapsed-time-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 153</span>
-153:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_elapsed_time</span>(<span class="ruby-identifier">result</span>)
-154:     <span class="ruby-constant">Time</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">finish_time</span>).<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-constant">Time</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">start_time</span>).<span class="ruby-identifier">to_i</span>
-155:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 156</span>
+156:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_elapsed_time</span>(<span class="ruby-identifier">result</span>)
+157:     <span class="ruby-constant">Time</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">finish_time</span>).<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-constant">Time</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">start_time</span>).<span class="ruby-identifier">to_i</span>
+158:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -477,15 +484,15 @@ Returns the receiver with the points attribute set to a Fixnum
 					<div class="method-source-code"
 						id="calculate-points-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 199</span>
-199:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_points</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
-200:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>
-201:       <span class="ruby-identifier">calculate_points_with_penalty</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
-202:     <span class="ruby-keyword kw">else</span>
-203:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>
-204:     <span class="ruby-keyword kw">end</span>
-205:     <span class="ruby-identifier">result</span>
-206:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 202</span>
+202:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_points</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
+203:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>
+204:       <span class="ruby-identifier">calculate_points_with_penalty</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
+205:     <span class="ruby-keyword kw">else</span>
+206:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>
+207:     <span class="ruby-keyword kw">end</span>
+208:     <span class="ruby-identifier">result</span>
+209:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -518,22 +525,22 @@ Internal: Calculate points based on a penalty code
 					<div class="method-source-code"
 						id="calculate-points-with-penalty-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 209</span>
-209:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_points_with_penalty</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
-210:     <span class="ruby-keyword kw">if</span> <span class="ruby-constant">ONE_POINT_PENALTY_CODES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>)
-211:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
-212:     <span class="ruby-keyword kw">elsif</span> <span class="ruby-constant">TWENTY_PERCENT_PENALTY_CODES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>)
-213:       <span class="ruby-identifier">penalty_points</span> = (<span class="ruby-identifier">total_results</span> * <span class="ruby-value">0.20</span>).<span class="ruby-identifier">round</span>
-214:       <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">penalty_points</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>) <span class="ruby-operator">&gt;</span> (<span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>)
-215:         <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
-216:       <span class="ruby-keyword kw">else</span>
-217:         <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">penalty_points</span>
-218:       <span class="ruby-keyword kw">end</span>
-219:     <span class="ruby-keyword kw">else</span>
-220:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>
-221:     <span class="ruby-keyword kw">end</span>
-222:     <span class="ruby-identifier">result</span>
-223:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 212</span>
+212:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">calculate_points_with_penalty</span>(<span class="ruby-identifier">result</span>, <span class="ruby-identifier">total_results</span>)
+213:     <span class="ruby-keyword kw">if</span> <span class="ruby-constant">ONE_POINT_PENALTY_CODES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>)
+214:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+215:     <span class="ruby-keyword kw">elsif</span> <span class="ruby-constant">TWENTY_PERCENT_PENALTY_CODES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">result</span>.<span class="ruby-identifier">code</span>)
+216:       <span class="ruby-identifier">penalty_points</span> = (<span class="ruby-identifier">total_results</span> * <span class="ruby-value">0.20</span>).<span class="ruby-identifier">round</span>
+217:       <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">penalty_points</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>) <span class="ruby-operator">&gt;</span> (<span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>)
+218:         <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">total_results</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+219:       <span class="ruby-keyword kw">else</span>
+220:         <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">penalty_points</span>
+221:       <span class="ruby-keyword kw">end</span>
+222:     <span class="ruby-keyword kw">else</span>
+223:       <span class="ruby-identifier">result</span>.<span class="ruby-identifier">points</span> = <span class="ruby-identifier">result</span>.<span class="ruby-identifier">position</span>
+224:     <span class="ruby-keyword kw">end</span>
+225:     <span class="ruby-identifier">result</span>
+226:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -579,10 +586,10 @@ Returns a string
 					<div class="method-source-code"
 						id="convert-seconds-to-time-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 167</span>
-167:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-identifier">seconds</span>)
-168:     <span class="ruby-constant">Time</span>.<span class="ruby-identifier">at</span>(<span class="ruby-identifier">seconds</span>).<span class="ruby-identifier">gmtime</span>.<span class="ruby-identifier">strftime</span>(<span class="ruby-value str">'%R:%S'</span>)
-169:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 170</span>
+170:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">convert_seconds_to_time</span>(<span class="ruby-identifier">seconds</span>)
+171:     <span class="ruby-constant">Time</span>.<span class="ruby-identifier">at</span>(<span class="ruby-identifier">seconds</span>).<span class="ruby-identifier">gmtime</span>.<span class="ruby-identifier">strftime</span>(<span class="ruby-value str">'%R:%S'</span>)
+172:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -630,14 +637,14 @@ Returns a Fixnum
 					<div class="method-source-code"
 						id="score-with-phrf-time-on-distance-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 113</span>
-113:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score_with_phrf_time_on_distance</span>
-114:     <span class="ruby-identifier">cf</span>  = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">rating</span>
-115:     <span class="ruby-identifier">et</span>  = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span>
-116:     <span class="ruby-identifier">d</span>   = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">distance</span>
-117: 
-118:     (<span class="ruby-identifier">et</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">d</span> * <span class="ruby-identifier">cf</span>)).<span class="ruby-identifier">round</span>
-119:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 116</span>
+116:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score_with_phrf_time_on_distance</span>
+117:     <span class="ruby-identifier">cf</span>  = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">rating</span>
+118:     <span class="ruby-identifier">et</span>  = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span>
+119:     <span class="ruby-identifier">d</span>   = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">distance</span>
+120: 
+121:     (<span class="ruby-identifier">et</span> <span class="ruby-operator">-</span> (<span class="ruby-identifier">d</span> * <span class="ruby-identifier">cf</span>)).<span class="ruby-identifier">round</span>
+122:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
@@ -688,11 +695,11 @@ Returns a Fixnum representing corrected time in seconds
 					<div class="method-source-code"
 						id="score-with-phrf-time-on-time-source">
 <pre>
-     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 136</span>
-136:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score_with_phrf_time_on_time</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>)
-137:     <span class="ruby-identifier">tcf</span> = <span class="ruby-identifier">a</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> ( <span class="ruby-identifier">b</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">+</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">rating</span>.<span class="ruby-identifier">to_f</span> )
-138:     (<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> * <span class="ruby-identifier">tcf</span>).<span class="ruby-identifier">round</span>
-139:   <span class="ruby-keyword kw">end</span></pre>
+     <span class="ruby-comment cmt"># File lib/handy_capper/handy_capper.rb, line 139</span>
+139:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">score_with_phrf_time_on_time</span>(<span class="ruby-identifier">a</span>, <span class="ruby-identifier">b</span>)
+140:     <span class="ruby-identifier">tcf</span> = <span class="ruby-identifier">a</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> ( <span class="ruby-identifier">b</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">+</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">rating</span>.<span class="ruby-identifier">to_f</span> )
+141:     (<span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">elapsed_time</span> * <span class="ruby-identifier">tcf</span>).<span class="ruby-identifier">round</span>
+142:   <span class="ruby-keyword kw">end</span></pre>
 					</div>
 					
 				</div>
