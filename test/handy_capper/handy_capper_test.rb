@@ -12,7 +12,8 @@ describe HandyCapper do
       :corrected_time,
       :position,
       :points,
-      :code
+      :code,
+      :boat_id
     )
   end
 
@@ -221,5 +222,55 @@ describe HandyCapper do
 
       end
     end
+  end
+
+  describe "#score_series" do
+    before do
+      Event = Struct.new(:races)
+      Race = Struct.new(:results)
+      @event = Event.new
+      @event.races = []
+
+      10.times do
+        @event.races << Race.new
+      end
+      
+      boat_id = 1
+      @event.races.each do |race|
+        race.results = []
+        10.times do
+          r = Result.new
+          r.boat_id = boat_id
+          r.points = rand(10)+1
+          race.results << r
+        end
+        boat_id += 1
+      end
+
+    end
+
+    after do
+      # silence warnings for already initialized constant
+      # this could probably be done better if it wasn't a Struct. =\
+      Object.send(:remove_const, :Event)
+      Object.send(:remove_const, :Race)
+    end
+
+    it "should return a single result for each unique boat_id" do
+      # Figure out how many unique boat_ids we have
+      results = []
+      @event.races.each do |race|
+        results.push(race.results).flatten!
+      end
+      boats = results.map(&:boat_id).uniq
+
+      scored = @event.score_series
+      scored.length.must_equal boats.length
+      scored.each do |result|
+        result.length.must_equal 2
+        result.must_be_instance_of Hash
+      end
+    end
+
   end
 end

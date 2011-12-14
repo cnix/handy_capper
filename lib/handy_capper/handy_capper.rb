@@ -99,6 +99,37 @@ module HandyCapper
     self
   end
 
+  # Public: Score a series of races
+  #
+  # options - Hash for setting series scoring options
+  #
+  # Examples
+  #   event = Event.find(1)
+  #   results = event.score_series(throwouts: 1, system: :isaf_low_point)
+  #   # => [ { boat_id: 1, points: 17 }, { boat_id: 2, points: 22 } ... ]
+  #
+  # Returns an array of Hashes
+  def score_series(options={})
+    options[:system] ||= :isaf_low_point
+    options[:throwouts] ||= 0
+
+    results = []
+    self.races.each do |r|
+      results.push(r.results).flatten!
+    end
+
+    results = results.group_by { |r| r.boat_id }
+
+    # no throwouts yet
+    scored_results = []
+    results.each do |n| 
+      scored_results << { boat_id: n[0],
+        points: (n[1].map { |r| r[:points] }.inject(0){ |sum,item| sum + item }) }
+    end
+
+    scored_results
+  end
+
   private
 
   # Internal: Calculate corrected time with PHRF Time on Distance
