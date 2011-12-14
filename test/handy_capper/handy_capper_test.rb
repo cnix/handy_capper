@@ -13,7 +13,8 @@ describe HandyCapper do
       :position,
       :points,
       :code,
-      :boat_id
+      :boat_id,
+      :fleet_id
     )
   end
 
@@ -257,6 +258,7 @@ describe HandyCapper do
     end
 
     it "should return a single result for each unique boat_id" do
+      sample_result = @event.races.first.results.first
       # Figure out how many unique boat_ids we have
       results = []
       @event.races.each do |race|
@@ -267,8 +269,8 @@ describe HandyCapper do
       scored = @event.score_series
       scored.length.must_equal boats.length
       scored.each do |result|
-        result.length.must_equal 2
-        result.must_be_instance_of Hash
+        result.length.must_equal sample_result.length
+        result.must_be_instance_of sample_result.class
       end
     end
 

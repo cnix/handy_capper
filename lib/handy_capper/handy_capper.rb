@@ -122,9 +122,16 @@ module HandyCapper
 
     # no throwouts yet
     scored_results = []
-    results.each do |n| 
-      scored_results << { boat_id: n[0],
-        points: (n[1].map { |r| r[:points] }.inject(0){ |sum,item| sum + item }) }
+    results.each do |n|
+      points = (n[1].map { |r| r[:points] }.inject(0){ |sum,item| sum + item })
+      
+      # Get a new instance of the result class so we can return this awesomely
+      result = self.races.first.results.first.class.allocate
+      result.boat_id = n[0]
+      result.fleet_id = n[1].first.fleet_id
+      result.points = points
+
+      scored_results << result
     end
 
     scored_results
