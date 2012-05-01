@@ -30,8 +30,10 @@ describe HandyCapper do
       10.times do
         result = Result.new
         # TODO: Address potential race condition
-        time = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
-        result.corrected_time = time
+        ctime = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.corrected_time = ctime
+        ftime = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.finish_time = ftime
         @corrected_results << result
       end
 
@@ -39,15 +41,17 @@ describe HandyCapper do
       10.times do
         result = Result.new
         # TODO: Address potential race condition
-        time = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
-        result.elapsed_time = time
+        etime = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.elapsed_time = etime
+        ftime = Time.parse("#{[*0..3].sample}:#{[*0..59].sample}:#{[*0..59].sample}").strftime('%R:%S')
+        result.finish_time = ftime
         @one_design_results << result
       end
     end
 
     describe "one design" do
       it "should sort results by elapsed_time" do
-        scored_results = @one_design_results.score(:one_design)
+        scored_results = HandyCapper.score(@one_design_results, :elapsed_time)
 
         previous = '0'
         scored_results.each do |r|
@@ -60,7 +64,7 @@ describe HandyCapper do
 
     describe "corrected time" do
       it "should sort the results by corrected_time" do
-        scored_results = @corrected_results.score
+        scored_results = HandyCapper.score(@corrected_results)
 
         previous = '0'
         scored_results.each do |r|
@@ -69,10 +73,20 @@ describe HandyCapper do
           previous = this
         end
       end
+
+      it "should push results with no finish time to the end of the array" do
+        no_finish_time_result = @corrected_results.first
+        no_finish_time_result.finish_time = nil
+        no_finish_time_result.corrected_time = nil
+        no_finish_time_result.code = 'dnc'
+        
+        scored_results = HandyCapper.score(@corrected_results)
+        scored_results[-1].must_equal no_finish_time_result
+      end
     end
 
     it "should add position to the result" do
-      scored_results = @corrected_results.score
+      scored_results = HandyCapper.score(@corrected_results)
 
       scored_results.each do |r|
         r.position.wont_be_nil
@@ -110,6 +124,20 @@ describe HandyCapper do
 
     it "should default to PHRF Time On Distance" do
       @result.phrf.corrected_time.must_equal '00:51:17'
+    end
+  end
+
+  describe "#one_design" do
+    before do
+      @result = Result.new(222, '10:00:00', '11:30:30', 10.6)
+    end
+
+    it "should set the elapsed time" do
+      @result.one_design.elapsed_time.wont_be_nil
+    end
+
+    it "should not be corrected" do
+      @result.one_design.elapsed_time.must_equal '01:30:30'
     end
   end
 
@@ -177,14 +205,14 @@ describe HandyCapper do
     end
   end
 
-  describe "#calculate_points" do
+  describe ".calculate_points" do
     before do
       @result = Result.new
       @result.position = 2
     end
 
     it "should set the points for a result" do
-      calculate_points(@result, 10)
+      HandyCapper.calculate_points(@result, 10)
       @result.points.must_equal 2
     end
 
@@ -195,7 +223,7 @@ describe HandyCapper do
         it "should set points based on ISAF penalty code" do
           ['DSQ', 'DNS', 'DNF', 'DNC', 'OCS', 'BFD', 'DGM', 'DNE', 'RAF'].each do |c|
             @result.code = c
-            calculate_points(@result, 10)
+            HandyCapper.calculate_points(@result, 10)
             @result.points.must_equal 11
           end
 
@@ -207,7 +235,7 @@ describe HandyCapper do
         it "should apply the 20% penalty" do
           [ 'ZFP', 'SCP' ].each do |c|
             @result.code = c
-            calculate_points(@result, 10)
+            HandyCapper.calculate_points(@result, 10)
             @result.points.must_equal 4
           end
         end
@@ -216,7 +244,7 @@ describe HandyCapper do
           [ 'ZFP', 'SCP' ].each do |c|
             @result.code = c
             @result.position = 10
-            calculate_points(@result, 10)
+            HandyCapper.calculate_points(@result, 10)
             @result.points.must_equal 11
           end
         end

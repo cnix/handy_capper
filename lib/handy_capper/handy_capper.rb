@@ -5,16 +5,12 @@ module HandyCapper
 
   # Public: Applies position and points to a group of results
   #
-  # sort -  Result attribute to sort by. (default: :corrected_time)
-  #         :one_design     - sort by elapsed_time
-  #         :corrected_time - sort by corrected_time
-  #
   # Examples
   #
   #   # get some result objects from a database or something
   #   results = Result.where('race_id = ?', 1)
   #   # => [ #<Result ...>, #<Result ...>]
-  #   results.score(:corrected_time)
+  #   HandyCapper.score(results, :corrected_time)
   #   # returns results with position and points set
   #   # => [ #<Result ...>, #<Result ...>]
   #   results.first.position
@@ -22,14 +18,24 @@ module HandyCapper
   #   results.first.points
   #   # => 1
   #
-  # Returns receiver(Array) with position and points set for each item in the array
-  def score(sort = :corrected_time)
-    sort = (sort == :one_design) ? :elapsed_time : :corrected_time
-    sorted_results = self.sort_by { |h| h[sort] }
+  # Returns Array with position and points set for each result in the array
+  def self.score(results, sort=:corrected_time)
+
+    sorted_results = results.sort do |a,b|
+      if a.finish_time && b.finish_time
+        a.send(sort) <=> b.send(sort)
+      else
+        a.finish_time ? -1 : 1
+      end
+    end
 
     sorted_results.each_with_index do |result, index|
-      result.position = index + 1
-      calculate_points(result, sorted_results.length)
+      if result.finish_time.nil?
+        result.position = results.length
+      else
+        result.position = index + 1
+      end
+      calculate_points(result, results.length)
     end
 
     sorted_results
@@ -95,6 +101,21 @@ module HandyCapper
 
     self.corrected_time = convert_seconds_to_time(ct_in_seconds)
     self.elapsed_time = convert_seconds_to_time(self.elapsed_time)
+
+    self
+  end
+
+  # Public: Process elapsed_time for a result
+  #
+  # Returns receiver with elapsed_time set
+  # Raises AttributeError is a required attribute is missing from the receiver
+  def one_design
+
+    unless start_time && finish_time
+      raise AttributeError, "You need a start_time and finish_time to process this result"
+    end
+
+    self.elapsed_time = convert_seconds_to_time(calculate_elapsed_time(self))
 
     self
   end
@@ -221,7 +242,7 @@ module HandyCapper
   #     position:       1,
   #     code:           nil
   #   })
-  #   calculate_points(first_place_boat, 10)
+  #   HandyCapper.calculate_points(first_place_boat, 10)
   #   # => #<Result ...>
   #   first_place_boat.points
   #   # => 1
@@ -231,13 +252,13 @@ module HandyCapper
   #     position:       10,
   #     code:           'DNF'
   #   })
-  #   calculate_points(dnf_boat, 10)
+  #   HandyCapper.calculate_points(dnf_boat, 10)
   #   # => #<Result ...>
   #   dnf_boat.points
   #   # => 11
   #
-  # Returns the receiver with the points attribute set to a Fixnum
-  def calculate_points(result, total_results)
+  # Returns the result argument with the points attribute set to a Fixnum
+  def self.calculate_points(result, total_results)
     if result.code
       calculate_points_with_penalty(result, total_results)
     else
@@ -247,10 +268,10 @@ module HandyCapper
   end
 
   # Internal: Calculate points based on a penalty code
-  def calculate_points_with_penalty(result, total_results)
-    if ONE_POINT_PENALTY_CODES.include?(result.code)
+  def self.calculate_points_with_penalty(result, total_results)
+    if ONE_POINT_PENALTY_CODES.include?(result.code.upcase)
       result.points = total_results + 1
-    elsif TWENTY_PERCENT_PENALTY_CODES.include?(result.code)
+    elsif TWENTY_PERCENT_PENALTY_CODES.include?(result.code.upcase)
       penalty_points = (total_results * 0.20).round
       if (penalty_points + result.position) > (total_results + 1)
         result.points = total_results + 1
