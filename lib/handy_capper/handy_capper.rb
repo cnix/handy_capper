@@ -22,7 +22,7 @@ module HandyCapper
   def self.score(results, sort=:corrected_time)
 
     sorted_results = results.sort do |a,b|
-      if a.finish_time && b.finish_time
+      if a.finish_time && b.finish_time && !a.finish_time.empty? && !b.finish_time.empty?
         a.send(sort) <=> b.send(sort)
       else
         a.finish_time ? -1 : 1
@@ -143,13 +143,13 @@ module HandyCapper
 
     # no throwouts yet
     scored_results = []
-    results.each do |n|
-      points = (n[1].map { |r| r[:points] }.inject(0){ |sum,item| sum + item })
+    results.each do |res|
+      points = (res[1].map { |r| r[:points] }.inject(0){ |sum,item| sum + item })
       
       # Get a new instance of the result class so we can return this awesomely
-      result = self.races.first.results.first.class.allocate
-      result.boat_id = n[0]
-      result.fleet_id = n[1].first.fleet_id
+      result = self.races.first.results.first.class.new
+      result.boat_id = res[0]
+      result.fleet_id = res[1].first.fleet_id
       result.points = points
 
       scored_results << result
