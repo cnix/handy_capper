@@ -176,6 +176,21 @@ describe HandyCapper do
     end
   end
 
+  describe "#yardstick" do
+    before do
+      @result = Result.new(91.1, '10:00:00', '11:30:30')
+    end
+
+    it "should set the elapsed time" do
+      @result.yardstick.elapsed_time.wont_be_nil
+      @result.elapsed_time.must_equal '01:30:30'
+    end
+
+    it "should calculate corrected time with Portsmouth Yardstick formula" do
+      @result.yardstick.corrected_time.must_equal '01:39:20'
+    end
+  end
+
   describe "#calculate_elapsed_time" do
     before do
       @result = Result.new( 222, '10:00:00', '11:30:30', 10.6)

@@ -105,6 +105,41 @@ module HandyCapper
     self
   end
 
+  # Public: Corrects a result with the Portsmouth Yardstick system
+  #
+  # Examples
+  #
+  #   # Assuming a class named Result in your application
+  #   result = Result.new({
+  #     rating: 91.4,
+  #     start_time: '10:00:00',
+  #     finish_time: '11:30:30'
+  #   })
+  #
+  #   result.yardstick
+  #   # => #<Result ...>
+  #   result.elapsed_time
+  #   # => '01:30:30'
+  #   result.corrected_time
+  #   # => '01:39:20'
+  #
+  # Returns receiver with elapsed_time and corrected_time set
+  # Raises AttributeError if a required attribute is missing from the receiver
+  def yardstick
+
+    unless rating && start_time && finish_time
+      raise AttributeError, "You're missing a required attribute to process this result"
+    end
+
+    et = calculate_elapsed_time(self)
+
+    ct_in_seconds = ( (et * 100) / self.rating ).round
+    self.corrected_time = convert_seconds_to_time(ct_in_seconds)
+    self.elapsed_time = convert_seconds_to_time(et)
+
+    self
+  end
+
   # Public: Process elapsed_time for a result
   #
   # Returns receiver with elapsed_time set
